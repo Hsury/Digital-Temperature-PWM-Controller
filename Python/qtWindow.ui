@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>566</width>
+    <height>121</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>数字温度PWM控制仪 - 2017盟升杯</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QLabel" name="temp">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>2</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>温度:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="pwm">
+    <property name="geometry">
+     <rect>
+      <x>192</x>
+      <y>2</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>占空比:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="borderL">
+    <property name="geometry">
+     <rect>
+      <x>322</x>
+      <y>2</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>阈值下限:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="borderH">
+    <property name="geometry">
+     <rect>
+      <x>452</x>
+      <y>2</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>阈值上限:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ip">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>100</y>
+      <width>72</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>IP: </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ipDot1">
+    <property name="geometry">
+     <rect>
+      <x>65</x>
+      <y>100</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ipDot2">
+    <property name="geometry">
+     <rect>
+      <x>105</x>
+      <y>100</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ipDot3">
+    <property name="geometry">
+     <rect>
+      <x>145</x>
+      <y>100</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="mac">
+    <property name="geometry">
+     <rect>
+      <x>252</x>
+      <y>100</y>
+      <width>181</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>MAC: </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="version">
+    <property name="geometry">
+     <rect>
+      <x>452</x>
+      <y>100</y>
+      <width>121</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>版本: </string>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="tempLCD">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>20</y>
+      <width>171</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="smallDecimalPoint">
+     <bool>true</bool>
+    </property>
+    <property name="digitCount">
+     <number>4</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="pwmLCD">
+    <property name="geometry">
+     <rect>
+      <x>192</x>
+      <y>20</y>
+      <width>111</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="borderLLCD">
+    <property name="geometry">
+     <rect>
+      <x>322</x>
+      <y>20</y>
+      <width>111</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="borderHLCD">
+    <property name="geometry">
+     <rect>
+      <x>452</x>
+      <y>20</y>
+      <width>111</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="digitCount">
+     <number>3</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ipSeg1">
+    <property name="geometry">
+     <rect>
+      <x>32</x>
+      <y>98</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>192</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ipSeg2">
+    <property name="geometry">
+     <rect>
+      <x>72</x>
+      <y>98</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>168</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ipSeg3">
+    <property name="geometry">
+     <rect>
+      <x>112</x>
+      <y>98</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ipSeg4">
+    <property name="geometry">
+     <rect>
+      <x>152</x>
+      <y>98</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>105</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="connectButton">
+    <property name="geometry">
+     <rect>
+      <x>192</x>
+      <y>97</y>
+      <width>51</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>连接</string>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
