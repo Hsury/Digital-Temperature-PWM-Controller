@@ -12,7 +12,7 @@
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
 
-const char* ver = "20170923";
+const char* ver = "20170924";
 const char* ssid = "HsuRY";
 const char* password = "KAGAMIZ.COM";
 
@@ -20,7 +20,6 @@ ESP8266WebServer server(80);
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "ntp1.aliyun.com", 28800, 60000);
 
-const int led = 13;
 int border[2] = {30, 50};
 
 String getMAC() {
@@ -30,7 +29,7 @@ String getMAC() {
   for (int i = 0; i < 6; i++) {
     if (mac[i] <= 0x0F) macstr += '0';
     macstr += String(mac[i], HEX);
-    if (i < 5) macstr += ':';
+    if (i < 5) macstr += '-';
   }
   macstr.toUpperCase();
   return macstr;
@@ -76,8 +75,7 @@ void handleNotFound() {
 }
 
 void setup(void) {
-  pinMode(led, OUTPUT);
-  digitalWrite(led, 0);
+  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
   WiFi.begin(ssid, password);
   Serial.println("");
@@ -112,9 +110,9 @@ void setup(void) {
 }
 
 void loop(void) {
-  digitalWrite(led, 1);
+  digitalWrite(LED_BUILTIN, LOW);
   server.handleClient();
   timeClient.update();
-  digitalWrite(led, 0);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
