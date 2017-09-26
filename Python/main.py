@@ -18,16 +18,15 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     
     def wndUpdate(self):
         try:
-            esp8266 = requests.get(ipAddr, timeout = 0.25)
+            esp8266 = requests.get(ipAddr, timeout = 0.2)
             jsondata = esp8266.json()
             mac = jsondata['mac']
             version = jsondata['version']
             time = jsondata['time']
             stat = jsondata['stat']
-            sensor = jsondata['sensor']
-            bias = jsondata['bias']
+            temp = jsondata['temp']
             pwm = jsondata['pwm']
-            range = jsondata['range']
+            border = jsondata['border']
             ping = True
         except requests.exceptions.ConnectTimeout:
             ping = False
@@ -36,10 +35,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         except json.decoder.JSONDecodeError:
             ping = False
         if (ping == True):
-            self.ui.tempLCD.display(sensor + bias)
+            self.ui.tempLCD.display(temp)
             self.ui.pwmLCD.display(pwm)
-            self.ui.borderLLCD.display(range[0])
-            self.ui.borderHLCD.display(range[1])
+            self.ui.borderLLCD.display(border[0])
+            self.ui.borderHLCD.display(border[1])
             self.ui.mac.setText('MAC: ' + mac)
             self.ui.version.setText('版本: ' + version)
     
@@ -47,7 +46,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         global ipAddr, talking
         talking = not talking
         if (talking == True):
-            self.timer.start(500)
+            self.timer.start(250)
             ipAddr = 'http://'\
                      + self.ui.ipSeg1.text() + '.'\
                      + self.ui.ipSeg2.text() + '.'\
