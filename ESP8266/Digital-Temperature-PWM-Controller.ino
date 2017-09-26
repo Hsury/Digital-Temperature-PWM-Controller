@@ -7,20 +7,35 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
+#include <EEPROM.h>
 
-const char* ver = "20170924";
-const char* ssid = "HsuRY";
-const char* password = "KAGAMIZ.COM";
+const char* ver = "20170926";
+const char* ssid = "Xiaomi_33C7";
+const char* password = "duoguanriben8";
+const float offset = 0.0;
+boolean isOnline;
+unsigned long timeStamp;
+float temp;
+int stat, pwm, border[2];
 
 ESP8266WebServer server(80);
 WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "ntp1.aliyun.com", 28800, 60000);
 
-int border[2] = {30, 50};
+void readConf() {
+  EEPROM.begin(3);
+  if (EEPROM.read(0) != 0x39) {
+    EEPROM.write(0, 0x39);
+    EEPROM.write(1, 30);
+    EEPROM.write(2, 50);
+  }
+  border[0] = EEPROM.read(1);
+  border[1] = EEPROM.read(2);
+  EEPROM.end();
+}
 
 String getMAC() {
   byte mac[6];
@@ -35,84 +50,80 @@ String getMAC() {
   return macstr;
 }
 
-JsonObject& prepareResponse(JsonBuffer& jsonBuffer) {
-  JsonObject& root = jsonBuffer.createObject();
-  root["mac"] = getMAC();
-  root["version"] = ver;
-  root["time"] = timeClient.getFormattedTime();
-  root["stat"] = 1;
-  root["sensor"] = 27;
-  root["bias"] = 0;
-  root["pwm"] = 0;
-  JsonArray& range = root.createNestedArray("range");
-  range.add(border[0]);
-  range.add(border[1]);
-  return root;
+boolean connectWifi() {
+  WiFi.begin(ssid, password);
+  Serial.printf("Connecting to %s\n", ssid);
+  for (int i = 0; i < 10; i++) {
+    delay(1000);
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.print(">");
+    } else {
+      break;
+    }
+  }
+  Serial.print(" ");
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("OK!");
+    Serial.print("IP address: ");
+    Serial.println(WiFi.localIP());
+    server.on("/", handleRoot);
+    server.begin();
+    Serial.println("HTTP server started.");
+    timeClient.begin();
+    Serial.println("NTP client started.");
+    return true;
+  } else {
+    Serial.println("Failed!");
+    WiFi.disconnect(true);
+    return false;
+  }
+}
+
+void dataProcess() {
+  if (millis() - timeStamp > 250) {
+    temp = analogRead(A0) / 1024.0 * 100 + offset;
+    pwm = (50 - temp) / 20 * 100;
+    if (pwm < 0 or pwm > 100) pwm = -1;
+    timeStamp = millis();
+  }
 }
 
 void handleRoot() {
   String msg;
-  StaticJsonBuffer<500> jsonBuffer;
+  StaticJsonBuffer<256> jsonBuffer;
   JsonObject& json = prepareResponse(jsonBuffer);
   json.prettyPrintTo(msg);
   server.send(200, "application/json", msg);
 }
 
-void handleNotFound() {
-
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
+JsonObject& prepareResponse(JsonBuffer& jsonBuffer) {
+  JsonObject& root = jsonBuffer.createObject();
+  root["mac"] = getMAC();
+  root["version"] = ver;
+  root["time"] = timeClient.getFormattedTime();
+  root["stat"] = stat;
+  root["temp"] = temp;
+  root["pwm"] = pwm;
+  JsonArray& borderJson = root.createNestedArray("border");
+  borderJson.add(border[0]);
+  borderJson.add(border[1]);
+  return root;
 }
 
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
-  WiFi.begin(ssid, password);
-  Serial.println("");
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
-
-  if (MDNS.begin("esp8266")) {
-    Serial.println("MDNS responder started");
-  }
-
-  server.on("/", handleRoot);
-
-  server.on("/inline", []() {
-    server.send(200, "text/plain", "this works as well");
-  });
-
-  server.onNotFound(handleNotFound);
-
-  server.begin();
-  Serial.println("HTTP server started");
-
-  timeClient.begin();
+  readConf();
+  isOnline = connectWifi();
 }
 
 void loop(void) {
   digitalWrite(LED_BUILTIN, LOW);
-  server.handleClient();
-  timeClient.update();
+  dataProcess();
+  if (isOnline) {
+    server.handleClient();
+    timeClient.update();
+  }
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
