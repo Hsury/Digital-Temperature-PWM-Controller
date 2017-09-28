@@ -7,12 +7,14 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <ArduinoJson.h>
 #include <EEPROM.h>
+#include <ArduinoOTA.h>
 
-const char* ver = "20170926";
+const char* ver = "20170928";
 const char* ssid = "Xiaomi_33C7";
 const char* password = "duoguanriben8";
 const float offset = 0.0;
@@ -51,8 +53,9 @@ String getMAC() {
 }
 
 boolean connectWifi() {
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.printf("Connecting to %s\n", ssid);
+  Serial.printf("\nConnecting to %s\n", ssid);
   for (int i = 0; i < 10; i++) {
     delay(1000);
     if (WiFi.status() != WL_CONNECTED) {
@@ -63,17 +66,20 @@ boolean connectWifi() {
   }
   Serial.print(" ");
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.println("OK!");
+    Serial.println("Pass");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
     server.on("/", handleRoot);
     server.begin();
-    Serial.println("HTTP server started.");
+    Serial.println("HTTP server started");
     timeClient.begin();
-    Serial.println("NTP client started.");
+    Serial.println("NTP client started");
+    otaCfg();
+    ArduinoOTA.begin();
+    Serial.println("OTA service started");
     return true;
   } else {
-    Serial.println("Failed!");
+    Serial.println("Fail");
     WiFi.disconnect(true);
     return false;
   }
@@ -110,6 +116,27 @@ JsonObject& prepareResponse(JsonBuffer& jsonBuffer) {
   return root;
 }
 
+void otaCfg(void) {
+  ArduinoOTA.setPassword((const char *)"ILWT");
+  ArduinoOTA.onStart([]() {
+    Serial.println("OTA start");
+  });
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nOTA end");
+  });
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("OTA progress: %u%%\r", (progress / (total / 100)));
+  });
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("OTA error[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
+    else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
+    else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
+    else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
+    else if (error == OTA_END_ERROR) Serial.println("End Failed");
+  });
+}
+
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
@@ -123,6 +150,7 @@ void loop(void) {
   if (isOnline) {
     server.handleClient();
     timeClient.update();
+    ArduinoOTA.handle();
   }
   digitalWrite(LED_BUILTIN, HIGH);
 }
