@@ -23,11 +23,16 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             mac = jsondata['mac']
             version = jsondata['version']
             time = jsondata['time']
-            stat = jsondata['stat']
             temp = jsondata['temp']
             pwm = jsondata['pwm']
             border = jsondata['border']
             ping = True
+        except socket.timeout:
+            ping = False
+        except urllib3.exceptions.ReadTimeoutError:
+            ping = False
+        except requests.exceptions.ConnectionError:
+            ping = False
         except requests.exceptions.ConnectTimeout:
             ping = False
         except requests.exceptions.Timeout:

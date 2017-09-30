@@ -253,7 +253,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>1</string>
+     <string>31</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="ipSeg4">
@@ -266,7 +266,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>105</string>
+     <string>161</string>
     </property>
    </widget>
    <widget class="QPushButton" name="connectButton">
