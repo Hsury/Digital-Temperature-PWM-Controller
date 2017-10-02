@@ -15,23 +15,36 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-const char* ver = "20170929";
+const char* ver = "20171002";
 const char* update_path = "/ota";
 const char* update_username = "ILWT";
 const char* update_password = "ILWT";
 const char* ssid = "Xiaomi_33C7";
 const char* password = "duoguanriben8";
+const String cmdList[4] = {"restart", "serialPrint", "setOffset", "setBorder"};
 
 boolean isOnline;
+unsigned int localUdpPort = 8266;
+char incomingPacket[255];
+char  replyPacekt[] = "Got it, ILWT!\n";
 float temp, offset;
 String tempStr;
-int stat, pwm, border[2];
+unsigned int pwm, border[2];
 unsigned long timeStamp[2];
 
+WiFiUDP mainUDP, ntpUDP;
 ESP8266WebServer server(80);
 ESP8266HTTPUpdateServer httpUpdater;
-WiFiUDP ntpUDP;
 NTPClient timeClient(ntpUDP, "ntp1.aliyun.com", 28800, 10000);
+
+void bannerPrint(void) {
+  Serial.println();
+  Serial.println("Digital Temperature PWM Controller");
+  Serial.printf("MAC address: %s", getMAC().c_str());
+  Serial.println();
+  Serial.printf("Software version: %s", ver);
+  Serial.println();
+}
 
 void readConf(void) {
   EEPROM.begin(3);
@@ -59,6 +72,7 @@ String getMAC(void) {
 }
 
 void otaSetup(void) {
+  ArduinoOTA.setPort(6628);
   ArduinoOTA.setPassword(update_password);
   ArduinoOTA.onStart([]() {
     Serial.println("OTA start");
@@ -84,7 +98,7 @@ void otaSetup(void) {
 boolean connectWifi(void) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  Serial.printf("\nConnecting to %s\n", ssid);
+  Serial.printf("Connecting to %s ", ssid);
   for (int i = 0; i < 20; i++) {
     delay(500);
     if (WiFi.status() != WL_CONNECTED) {
@@ -98,6 +112,10 @@ boolean connectWifi(void) {
     Serial.println("OK");
     Serial.print("IP address: ");
     Serial.println(WiFi.localIP());
+    mainUDP.begin(localUdpPort);
+    Serial.printf("UDP port: %u", localUdpPort);
+    Serial.println();
+    Serial.println("UDP listener started");
     otaSetup();
     Serial.println("OTA service started");
     MDNS.addService("http", "tcp", 80);
@@ -118,10 +136,10 @@ boolean connectWifi(void) {
 void dataProcess(void) {
   if (timeStamp[0] == 0 or millis() - timeStamp[0] > 250) {
     temp = analogRead(A0) / 1024.0 * 100 + offset;
-    tempStr = int(temp * 10 + 0.5) / 10.0;
+    if (temp > 100) temp = 100;
+    tempStr = String(int(temp * 10 + 0.5) / 10.0);
     tempStr = tempStr.substring(0, tempStr.length() - 1);
-    pwm = (50 - temp) / 20 * 100;
-    if (pwm < 0) pwm = 0;
+    pwm = (border[1] - temp) / (border[1] - border[0]) * 100;
     if (pwm > 100) pwm = 100;
     timeStamp[0] = millis();
   }
@@ -140,7 +158,6 @@ JsonObject& prepareResponse(JsonBuffer& jsonBuffer) {
   root["mac"] = getMAC();
   root["version"] = ver;
   root["time"] = timeClient.getFormattedTime();
-  root["stat"] = stat;
   root["temp"] = tempStr;
   root["pwm"] = pwm;
   JsonArray& borderJson = root.createNestedArray("border");
@@ -156,9 +173,70 @@ void timeUpdate(void) {
   }
 }
 
+void udpHandle(WiFiUDP& udp) {
+  int packetSize = udp.parsePacket();
+  if (packetSize)
+  {
+    int len = udp.read(incomingPacket, 255);
+    if (len > 0)
+    {
+      incomingPacket[len] = 0;
+    }
+    Serial.printf("UDP Received %d bytes from %s, port %d, packet contents: %s", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort(), incomingPacket);
+    Serial.println();
+    udp.beginPacket(udp.remoteIP(), udp.remotePort());
+    udp.write(replyPacekt);
+    udp.endPacket();
+    Serial.println("UDP reply packet sent");
+    cmdCheck(incomingPacket);
+  }
+}
+
+void cmdCheck(char* packet) {
+  String raw = String(packet);
+  String parameter;
+  for (int i = 0; i < sizeof(cmdList) / sizeof(cmdList[0]); i++) {
+    if (raw.startsWith(cmdList[i] + ":") and raw.endsWith(";")) {
+      parameter = raw.substring(cmdList[i].length() + 1, raw.length() - 1);
+      Serial.printf("Command \"%s\" got, parameter: \"%s\"", cmdList[i].c_str(), parameter.c_str());
+      Serial.println();
+      switch (i) {
+        case 0:
+          Serial.println("Restarting...");
+          ESP.restart();
+          break;
+        case 1:
+          Serial.printf("Temperature: %s, PWM: %d, Offset: ", tempStr.c_str(), pwm);
+          Serial.print(offset);
+          Serial.printf(", Border: {%d, %d}", border[0], border[1]);
+          Serial.println();
+          break;
+        case 2:
+          offset = parameter.toFloat();
+          Serial.print("offset <= ");
+          Serial.println(offset);
+          break;
+        case 3:
+          if (parameter.indexOf(',') != -1) {
+            unsigned int newBorder[2] = {parameter.substring(0, parameter.indexOf(',')).toInt(), parameter.substring(parameter.indexOf(',') + 1, parameter.length()).toInt()};
+            if (newBorder[0] >= 0 and newBorder[0] < newBorder[1] and newBorder[1] <= 100) {
+              border[0] = newBorder[0];
+              border[1] = newBorder[1];
+              Serial.printf("border <= {%d, %d}", border[0], border[1]);
+              Serial.println();
+            } else Serial.println("Value error");
+          } else Serial.println("Format error");
+          break;
+      }
+      break;
+    }
+  }
+}
+
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
+  bannerPrint();
   readConf();
   isOnline = connectWifi();
 }
@@ -167,6 +245,7 @@ void loop(void) {
   digitalWrite(LED_BUILTIN, LOW);
   dataProcess();
   if (isOnline) {
+    udpHandle(mainUDP);
     ArduinoOTA.handle();
     server.handleClient();
     timeUpdate();
