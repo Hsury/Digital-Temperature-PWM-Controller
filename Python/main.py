@@ -27,17 +27,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             pwm = jsondata['pwm']
             border = jsondata['border']
             ping = True
-        except socket.timeout:
-            ping = False
-        except urllib3.exceptions.ReadTimeoutError:
-            ping = False
-        except requests.exceptions.ConnectionError:
-            ping = False
-        except requests.exceptions.ConnectTimeout:
-            ping = False
-        except requests.exceptions.Timeout:
-            ping = False
-        except json.decoder.JSONDecodeError:
+        except :
             ping = False
         if (ping == True):
             self.ui.tempLCD.display(temp)
