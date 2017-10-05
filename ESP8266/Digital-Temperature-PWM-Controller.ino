@@ -15,7 +15,7 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-const char* ver = "20171002";
+const char* ver = "20171005";
 const char* update_path = "/ota";
 const char* update_username = "ILWT";
 const char* update_password = "ILWT";
@@ -29,7 +29,7 @@ char incomingPacket[255];
 char  replyPacekt[] = "Got it, ILWT!\n";
 float temp, offset;
 String tempStr;
-unsigned int pwm, border[2];
+int pwm, border[2];
 unsigned long timeStamp[2];
 
 WiFiUDP mainUDP, ntpUDP;
@@ -136,10 +136,12 @@ boolean connectWifi(void) {
 void dataProcess(void) {
   if (timeStamp[0] == 0 or millis() - timeStamp[0] > 250) {
     temp = analogRead(A0) / 1024.0 * 100 + offset;
+    if (temp < 0) temp = 0;
     if (temp > 100) temp = 100;
     tempStr = String(int(temp * 10 + 0.5) / 10.0);
     tempStr = tempStr.substring(0, tempStr.length() - 1);
     pwm = (border[1] - temp) / (border[1] - border[0]) * 100;
+    if (pwm < 0) pwm = 0;
     if (pwm > 100) pwm = 100;
     timeStamp[0] = millis();
   }
@@ -230,6 +232,52 @@ void cmdCheck(char* packet) {
       }
       break;
     }
+  }
+}
+
+boolean ssd4Drv(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, uint8_t invl, unsigned long& timeStamp, char* str) {
+  String text = String(str);
+  int ptrBegin = (text.length() > 4) ? -3 : 0;
+  int ptrEnd = (text.length() > 4) ? text.length() - 1 : 0;
+  int i = ptrBegin;
+  for (int j = 0; j++; j < 4) {
+    uint8_t led;
+    if (i + j >= 0 and i + j <= text.length() - 1) {
+      switch (text[i + j]) {
+        case '.':
+          led = B00000001;
+          break;
+
+        case 'I':
+          led = B01100000;
+          break;
+
+        case 'P':
+          led = B11001110;
+          break;
+
+        default:
+          led = 0;
+          break;
+      }
+      if (!led & B00000001 and i + j + 1 >= 0 and i + j + 1 <= text.length() - 1 and text[i + j + 1] == '.') {
+        led |= B00000001;
+        i++;
+      }
+    } else {
+      led = 0;
+    }
+    digitalWrite(latchPin, LOW);
+    shiftOut(dataPin, clockPin, LSBFIRST, led);
+    shiftOut(dataPin, clockPin, LSBFIRST, B10000000 << j);
+    digitalWrite(latchPin, HIGH);
+  }
+  if (timeStamp == 0 or millis() - timeStamp > invl) {
+    i++;
+    if (i >= ptrEnd + 1) {
+      i = ptrBegin;
+    }
+    timeStamp = millis();
   }
 }
 
