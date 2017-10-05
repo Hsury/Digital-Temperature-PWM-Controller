@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>566</width>
-    <height>121</height>
+    <height>200</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -56,7 +56,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>阈值下限:</string>
+     <string>下限:</string>
     </property>
    </widget>
    <widget class="QLabel" name="borderH">
@@ -69,14 +69,14 @@
      </rect>
     </property>
     <property name="text">
-     <string>阈值上限:</string>
+     <string>上限:</string>
     </property>
    </widget>
    <widget class="QLabel" name="ip">
     <property name="geometry">
      <rect>
       <x>2</x>
-      <y>100</y>
+      <y>154</y>
       <width>72</width>
       <height>15</height>
      </rect>
@@ -89,7 +89,7 @@
     <property name="geometry">
      <rect>
       <x>65</x>
-      <y>100</y>
+      <y>154</y>
       <width>16</width>
       <height>16</height>
      </rect>
@@ -102,7 +102,7 @@
     <property name="geometry">
      <rect>
       <x>105</x>
-      <y>100</y>
+      <y>154</y>
       <width>16</width>
       <height>16</height>
      </rect>
@@ -115,7 +115,7 @@
     <property name="geometry">
      <rect>
       <x>145</x>
-      <y>100</y>
+      <y>154</y>
       <width>16</width>
       <height>16</height>
      </rect>
@@ -128,26 +128,26 @@
     <property name="geometry">
      <rect>
       <x>252</x>
-      <y>100</y>
+      <y>154</y>
       <width>181</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>MAC: </string>
+     <string>MAC: 未知</string>
     </property>
    </widget>
    <widget class="QLabel" name="version">
     <property name="geometry">
      <rect>
       <x>452</x>
-      <y>100</y>
+      <y>154</y>
       <width>121</width>
       <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>版本: </string>
+     <string>版本: 未知</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="tempLCD">
@@ -221,7 +221,7 @@
     <property name="geometry">
      <rect>
       <x>32</x>
-      <y>98</y>
+      <y>152</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -234,7 +234,7 @@
     <property name="geometry">
      <rect>
       <x>72</x>
-      <y>98</y>
+      <y>152</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -247,7 +247,7 @@
     <property name="geometry">
      <rect>
       <x>112</x>
-      <y>98</y>
+      <y>152</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -260,7 +260,7 @@
     <property name="geometry">
      <rect>
       <x>152</x>
-      <y>98</y>
+      <y>152</y>
       <width>31</width>
       <height>21</height>
      </rect>
@@ -273,7 +273,7 @@
     <property name="geometry">
      <rect>
       <x>192</x>
-      <y>97</y>
+      <y>151</y>
       <width>51</width>
       <height>23</height>
      </rect>
@@ -282,7 +282,52 @@
      <string>连接</string>
     </property>
    </widget>
+   <widget class="QProgressBar" name="tempBar">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>96</y>
+      <width>561</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QProgressBar::chunk {background-color: #06B025;}</string>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="format">
+     <string notr="true">TEMP</string>
+    </property>
+   </widget>
+   <widget class="QProgressBar" name="pwmBar">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>124</y>
+      <width>561</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QProgressBar::chunk {background-color: #06B025;}</string>
+    </property>
+    <property name="value">
+     <number>0</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+    <property name="format">
+     <string notr="true">PWM</string>
+    </property>
+   </widget>
   </widget>
+  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <resources/>
  <connections/>
