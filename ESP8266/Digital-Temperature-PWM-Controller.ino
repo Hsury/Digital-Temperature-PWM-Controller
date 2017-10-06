@@ -15,13 +15,13 @@
 #include <EEPROM.h>
 #include <ArduinoJson.h>
 
-const char* ver = "20171005";
+const char* ver = "20171006";
 const char* update_path = "/ota";
 const char* update_username = "ILWT";
 const char* update_password = "ILWT";
 const char* ssid = "Xiaomi_33C7";
 const char* password = "duoguanriben8";
-const String cmdList[4] = {"restart", "serialPrint", "setOffset", "setBorder"};
+const String cmdList[5] = {"restart", "restore", "setBorder", "setOffset", "serialPrint"};
 
 boolean isOnline;
 unsigned int localUdpPort = 8266;
@@ -47,14 +47,16 @@ void bannerPrint(void) {
 }
 
 void readConf(void) {
-  EEPROM.begin(3);
+  EEPROM.begin(4);
   if (EEPROM.read(0) != 0x39) {
     EEPROM.write(0, 0x39);
-    EEPROM.write(1, 30);
-    EEPROM.write(2, 50);
+    EEPROM.write(1, 0);
+    EEPROM.write(2, 30);
+    EEPROM.write(3, 50);
   }
-  border[0] = EEPROM.read(1);
-  border[1] = EEPROM.read(2);
+  offset = EEPROM.read(1);
+  border[0] = EEPROM.read(2);
+  border[1] = EEPROM.read(3);
   EEPROM.end();
 }
 
@@ -99,7 +101,7 @@ boolean connectWifi(void) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.printf("Connecting to %s ", ssid);
-  for (int i = 0; i < 20; i++) {
+  for (int i = 0; i < 60; i++) {
     delay(500);
     if (WiFi.status() != WL_CONNECTED) {
       Serial.print(">");
@@ -184,12 +186,14 @@ void udpHandle(WiFiUDP& udp) {
     {
       incomingPacket[len] = 0;
     }
-    Serial.printf("UDP Received %d bytes from %s, port %d, packet contents: %s", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort(), incomingPacket);
-    Serial.println();
-    udp.beginPacket(udp.remoteIP(), udp.remotePort());
-    udp.write(replyPacekt);
-    udp.endPacket();
-    Serial.println("UDP reply packet sent");
+    /*
+      Serial.printf("UDP Received %d bytes from %s, port %d, packet contents: %s", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort(), incomingPacket);
+      Serial.println();
+      udp.beginPacket(udp.remoteIP(), udp.remotePort());
+      udp.write(replyPacekt);
+      udp.endPacket();
+      Serial.println("UDP reply packet sent");
+    */
     cmdCheck(incomingPacket);
   }
 }
@@ -208,26 +212,48 @@ void cmdCheck(char* packet) {
           ESP.restart();
           break;
         case 1:
-          Serial.printf("Temperature: %s, PWM: %d, Offset: ", tempStr.c_str(), pwm);
-          Serial.print(offset);
-          Serial.printf(", Border: {%d, %d}", border[0], border[1]);
-          Serial.println();
-          break;
-        case 2:
-          offset = parameter.toFloat();
+          EEPROM.begin(4);
+          EEPROM.write(0, 0x39);
+          EEPROM.write(1, 0);
+          EEPROM.write(2, 30);
+          EEPROM.write(3, 50);
+          offset = EEPROM.read(1);
           Serial.print("offset <= ");
           Serial.println(offset);
+          border[0] = EEPROM.read(2);
+          border[1] = EEPROM.read(3);
+          Serial.printf("border <= {%d, %d}", border[0], border[1]);
+          Serial.println();
+          EEPROM.end();
           break;
-        case 3:
+        case 2:
           if (parameter.indexOf(',') != -1) {
             unsigned int newBorder[2] = {parameter.substring(0, parameter.indexOf(',')).toInt(), parameter.substring(parameter.indexOf(',') + 1, parameter.length()).toInt()};
             if (newBorder[0] >= 0 and newBorder[0] < newBorder[1] and newBorder[1] <= 100) {
               border[0] = newBorder[0];
               border[1] = newBorder[1];
+              EEPROM.begin(4);
+              EEPROM.write(2, border[0]);
+              EEPROM.write(3, border[1]);
+              EEPROM.end();
               Serial.printf("border <= {%d, %d}", border[0], border[1]);
               Serial.println();
             } else Serial.println("Value error");
           } else Serial.println("Format error");
+          break;
+        case 3:
+          offset = parameter.toFloat();
+          EEPROM.begin(4);
+          EEPROM.write(1, round(offset));
+          EEPROM.end();
+          Serial.print("offset <= ");
+          Serial.println(offset);
+          break;
+        case 4:
+          Serial.printf("Temperature: %s, PWM: %d, Offset: ", tempStr.c_str(), pwm);
+          Serial.print(offset);
+          Serial.printf(", Border: {%d, %d}", border[0], border[1]);
+          Serial.println();
           break;
       }
       break;
@@ -235,7 +261,8 @@ void cmdCheck(char* packet) {
   }
 }
 
-boolean ssd4Drv(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, uint8_t invl, unsigned long& timeStamp, char* str) {
+/*
+  boolean ssd4Drv(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, uint8_t invl, unsigned long& timeStamp, char* str) {
   String text = String(str);
   int ptrBegin = (text.length() > 4) ? -3 : 0;
   int ptrEnd = (text.length() > 4) ? text.length() - 1 : 0;
@@ -279,7 +306,8 @@ boolean ssd4Drv(uint8_t dataPin, uint8_t clockPin, uint8_t latchPin, uint8_t inv
     }
     timeStamp = millis();
   }
-}
+  }
+*/
 
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
