@@ -29,6 +29,7 @@ def getData():
         except:
             ping = False
         sleep(0.1)
+    ping = False
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
