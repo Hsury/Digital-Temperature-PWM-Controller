@@ -122,7 +122,7 @@ class Ui_MainWindow(object):
         self.version.setText(_translate("MainWindow", "版本: 未知"))
         self.ipSeg1.setText(_translate("MainWindow", "192"))
         self.ipSeg2.setText(_translate("MainWindow", "168"))
-        self.ipSeg3.setText(_translate("MainWindow", "31"))
-        self.ipSeg4.setText(_translate("MainWindow", "161"))
+        self.ipSeg3.setText(_translate("MainWindow", "1"))
+        self.ipSeg4.setText(_translate("MainWindow", "233"))
         self.connectButton.setText(_translate("MainWindow", "连接"))
 

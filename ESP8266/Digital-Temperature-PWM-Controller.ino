@@ -9,6 +9,7 @@
 #define FITTING_K 100 / 1024.0
 #define FITTING_B 40
 #define SAMPLING_PERIOD 250
+#define COOLDOWN_TIME 100
 
 #include <ArduinoJson.h>
 #include <ArduinoOTA.h>
@@ -24,12 +25,15 @@
 
 const byte pinCLK = 4;
 const byte pinDIO = 5;
-const char* password = "KAGAMIZ.COM";
-const char* ssid = "HsuRY";
+const byte pinPage = 14;
+const byte pinDown = 12;
+const byte pinUp = 13;
+const char* password = "duoguanriben8";
+const char* ssid = "Robocon";
 const char* update_username = "ILWT";
 const char* update_password = "ILWT";
 const char* update_path = "/ota";
-const char* ver = "20171022";
+const char* ver = "alpha";
 const String cmdList[5] = {"border", "fitting", "restart", "restore", "print"};
 
 boolean isOnline;
@@ -40,7 +44,7 @@ float border[2], fitting[2], temp;
 int adc, pwm;
 String tempStr;
 unsigned int localUdpPort = 8266;
-unsigned long timeStamp[2];
+unsigned long timeStamp[3];
 
 ESP8266HTTPUpdateServer httpUpdater;
 ESP8266WebServer server(80);
@@ -48,16 +52,179 @@ WiFiUDP mainUDP, ntpUDP;
 NTPClient timeClient(ntpUDP, "ntp1.aliyun.com", 28800, 10000);
 SevenSegmentTM1637 display(pinCLK, pinDIO);
 
+int checkButton(void) {
+  if (timeStamp[2] == 0 or millis() - timeStamp[2] > COOLDOWN_TIME) {
+    if (digitalRead(pinPage) == LOW) {
+      delay(10);
+      if (digitalRead(pinPage) == LOW) {
+        Serial.println("Button [Page] was pushed");
+        return 1;
+      }
+    } else if (digitalRead(pinDown) == LOW) {
+      delay(10);
+      if (digitalRead(pinDown) == LOW) {
+        Serial.println("Button [Down] was pushed");
+        return 2;
+      }
+    } else if (digitalRead(pinUp) == LOW) {
+      delay(10);
+      if (digitalRead(pinUp) == LOW) {
+        Serial.println("Button [Up] was pushed");
+        return 3;
+      }
+    }
+    timeStamp[2] = millis();
+  }
+  return 0;
+}
+
+void fade(int style, int msWait = 100) {
+  int i;
+  if (style == 0 or style == 2) {
+    for (i = 0; i <= 80; i += 10) {
+      display.setBacklight(i);
+      delay(50);
+    }
+  }
+  if (style == 2) delay(msWait);
+  if (style == 1 or style == 2) {
+    for (i = 80; i >= 0; i -= 10) {
+      display.setBacklight(i);
+      delay(50);
+    }
+  }
+}
+
 void stateMachine(void) {
+  String borderLStr, borderHStr;
+  byte strLen;
+  byte rawData[4];
   switch (menu) {
     case 0:
-      byte tempStrLen = tempStr.length();
-      byte  rawData[4];
-      rawData[0] = display.encode(tempStrLen > 4 ? tempStr[tempStrLen - 5] : ' ');
-      rawData[1] = display.encode(tempStrLen > 3 ? tempStr[tempStrLen - 4] : ' ');
-      rawData[2] = display.encode(tempStr[tempStrLen - 3]) | B10000000;
-      rawData[3] = display.encode(tempStr[tempStrLen - 1]);
+    case 1:
+      strLen = tempStr.length();
+      rawData[0] = display.encode(strLen > 4 ? tempStr[strLen - 5] : ' ');
+      rawData[1] = display.encode(strLen > 3 ? tempStr[strLen - 4] : ' ');
+      rawData[2] = display.encode(tempStr[strLen - 3]) | B10000000;
+      rawData[3] = display.encode(tempStr[strLen - 1]);
       display.printRaw(rawData);
+      if (menu == 0) {
+        Serial.println("Changed to page 0");
+        fade(0);
+        menu = 1;
+      }
+      if (checkButton() == 1) {
+        fade(1);
+        menu = 2;
+      }
+      break;
+    case 2:
+    case 3:
+      borderLStr = String(border[0]);
+      strLen = borderLStr.length();
+      rawData[0] = display.encode('L');
+      rawData[1] = display.encode(strLen > 4 ? borderLStr[strLen - 5] : ' ');
+      rawData[2] = display.encode(borderLStr[strLen - 4]) | B10000000;
+      rawData[3] = display.encode(borderLStr[strLen - 2]);
+      display.printRaw(rawData);
+      if (menu == 2) {
+        Serial.println("Changed to page 1");
+        fade(0);
+        menu = 3;
+      }
+      switch (checkButton()) {
+        case 1:
+          fade(1);
+          menu = 4;
+          break;
+        case 2:
+          if (border[0] > 0.1) {
+            border[0] -= 0.1;
+            EEPROM.begin(11);
+            EEPROM.write(1, round(border[0] * 10) / 10);
+            EEPROM.write(2, round(border[0] * 10) % 10);
+            EEPROM.end();
+            Serial.print("border <= {");
+            Serial.print(border[0]);
+            Serial.print(", ");
+            Serial.print(border[1]);
+            Serial.println("}");
+          }
+          break;
+        case 3:
+          if (border[0] < 99.7) {
+            border[0] += 0.1;
+            EEPROM.begin(11);
+            EEPROM.write(1, round(border[0] * 10) / 10);
+            EEPROM.write(2, round(border[0] * 10) % 10);
+            if (border[1] < border[0] + 0.2) {
+              border[1] = border[0] + 0.2;
+              EEPROM.write(3, round(border[1] * 10) / 10);
+              EEPROM.write(4, round(border[1] * 10) % 10);
+            }
+            EEPROM.end();
+            Serial.print("border <= {");
+            Serial.print(border[0]);
+            Serial.print(", ");
+            Serial.print(border[1]);
+            Serial.println("}");
+          }
+          break;
+      }
+      break;
+    case 4:
+    case 5:
+      borderHStr = String(border[1]);
+      strLen = borderHStr.length();
+      rawData[0] = display.encode('H');
+      rawData[1] = display.encode(strLen > 4 ? borderHStr[strLen - 5] : ' ');
+      rawData[2] = display.encode(borderHStr[strLen - 4]) | B10000000;
+      rawData[3] = display.encode(borderHStr[strLen - 2]);
+      display.printRaw(rawData);
+      if (menu == 4) {
+        Serial.println("Changed to page 2");
+        fade(0);
+        menu = 5;
+      }
+      switch (checkButton()) {
+        case 1:
+          fade(1);
+          menu = 0;
+          break;
+        case 2:
+          if (border[1] > 0.3) {
+            border[1] -= 0.1;
+            EEPROM.begin(11);
+            if (border[0] > border[1] - 0.2) {
+              border[0] = border[1] - 0.2;
+              EEPROM.write(1, round(border[0] * 10) / 10);
+              EEPROM.write(1, round(border[0] * 10) % 10);
+            }
+            EEPROM.write(3, round(border[1] * 10) / 10);
+            EEPROM.write(4, round(border[1] * 10) % 10);
+            EEPROM.end();
+            Serial.print("border <= {");
+            Serial.print(border[0]);
+            Serial.print(", ");
+            Serial.print(border[1]);
+            Serial.println("}");
+          }
+          break;
+        case 3:
+          if (border[1] < 99.9) {
+            border[1] += 0.1;
+            EEPROM.begin(11);
+            EEPROM.write(3, round(border[1] * 10) / 10);
+            EEPROM.write(4, round(border[1] * 10) % 10);
+            EEPROM.end();
+            Serial.print("border <= {");
+            Serial.print(border[0]);
+            Serial.print(", ");
+            Serial.print(border[1]);
+            Serial.println("}");
+          }
+          break;
+      }
       break;
   }
 }
@@ -72,22 +239,24 @@ void bannerPrint(void) {
 }
 
 void readConf(void) {
-  EEPROM.begin(9);
+  EEPROM.begin(11);
   if (EEPROM.read(0) != 0x39) {
     EEPROM.write(0, 0x39);
     EEPROM.write(1, round(BORDER_L * 10) / 10);
     EEPROM.write(2, round(BORDER_L * 10) % 10);
     EEPROM.write(3, round(BORDER_H * 10) / 10);
     EEPROM.write(4, round(BORDER_H * 10) % 10);
-    EEPROM.write(5, round(FITTING_K * 100) / 100);
-    EEPROM.write(6, round(FITTING_K * 100) % 100);
-    EEPROM.write(7, round(FITTING_B * 100) / 100);
-    EEPROM.write(8, round(FITTING_B * 100) % 100);
+    EEPROM.write(5, (FITTING_K < 0) ? 1 : 0);
+    EEPROM.write(6, round(abs(FITTING_K) * 100) / 100);
+    EEPROM.write(7, round(abs(FITTING_K) * 100) % 100);
+    EEPROM.write(8, (FITTING_B < 0) ? 1 : 0);
+    EEPROM.write(9, round(abs(FITTING_B) * 100) / 100);
+    EEPROM.write(10, round(abs(FITTING_B) * 100) % 100);
   }
   border[0] = EEPROM.read(1) + EEPROM.read(2) * 0.1;
   border[1] = EEPROM.read(3) + EEPROM.read(4) * 0.1;
-  fitting[0] = EEPROM.read(5) + EEPROM.read(6) * 0.01;
-  fitting[1] = EEPROM.read(7) + EEPROM.read(8) * 0.01;
+  fitting[0] = (EEPROM.read(5) == 1 ? -1 : 1) * (EEPROM.read(6) + EEPROM.read(7) * 0.01);
+  fitting[1] = (EEPROM.read(8) == 1 ? -1 : 1) * (EEPROM.read(9) + EEPROM.read(10) * 0.01);
   EEPROM.end();
 }
 
@@ -132,16 +301,14 @@ boolean connectWifi(void) {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.printf("Connecting to %s ", ssid);
-  for (int i = 0; i < 60; i++) {
-    delay(500);
-    char statusbar[] = "    ";
-    statusbar[i % 4] = '-';
-    display.print(statusbar);
+  for (int i = 0; i < 15; i++) {
     if (WiFi.status() != WL_CONNECTED) {
       Serial.print(">");
     } else {
       break;
     }
+    display.print("conn");
+    fade(2);
   }
   Serial.print(" ");
   if (WiFi.status() == WL_CONNECTED) {
@@ -161,16 +328,15 @@ boolean connectWifi(void) {
     Serial.println("HTTP server started");
     timeClient.begin();
     Serial.println("NTP client started");
-    display.print("PASS");
-    delay(500);
     Serial.println("Displaying IP address");
-    display.printf("   %d.%d.%d.%d   ", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
+    display.clear();
+    display.on();
+    display.printf("    %d.%d.%d.%d    ", WiFi.localIP()[0], WiFi.localIP()[1], WiFi.localIP()[2], WiFi.localIP()[3]);
+    display.off();
     return true;
   } else {
     Serial.println("FAIL");
     WiFi.disconnect(true);
-    display.print("FAIL");
-    delay(500);
     return false;
   }
 }
@@ -231,14 +397,12 @@ void udpHandle(WiFiUDP& udp) {
     {
       incomingPacket[len] = 0;
     }
-    /*
-      Serial.printf("UDP Received %d bytes from %s, port %d, packet contents: %s", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort(), incomingPacket);
-      Serial.println();
-      udp.beginPacket(udp.remoteIP(), udp.remotePort());
-      udp.write(replyPacekt);
-      udp.endPacket();
-      Serial.println("UDP reply packet sent");
-    */
+    Serial.printf("UDP Received %d bytes from %s, port %d, packet contents: %s", packetSize, udp.remoteIP().toString().c_str(), udp.remotePort(), incomingPacket);
+    Serial.println();
+    udp.beginPacket(udp.remoteIP(), udp.remotePort());
+    udp.write(replyPacekt);
+    udp.endPacket();
+    Serial.println("UDP reply packet sent");
     cmdCheck(incomingPacket);
   }
 }
@@ -255,8 +419,8 @@ void cmdCheck(char* packet) {
         case 0:
           if (parameter.indexOf(',') != -1) {
             float newBorder[2] = {parameter.substring(0, parameter.indexOf(',')).toFloat(), parameter.substring(parameter.indexOf(',') + 1, parameter.length()).toFloat()};
-            if (newBorder[0] > 0 and newBorder[0] < newBorder[1] and newBorder[1] < 100 ) {
-              EEPROM.begin(9);
+            if (newBorder[0] >= 0.1 and (newBorder[1] - newBorder[0]) > 0.1 and newBorder[1] <= 99.9 ) {
+              EEPROM.begin(11);
               EEPROM.write(1, round(newBorder[0] * 10) / 10);
               EEPROM.write(2, round(newBorder[0] * 10) % 10);
               EEPROM.write(3, round(newBorder[1] * 10) / 10);
@@ -275,13 +439,15 @@ void cmdCheck(char* packet) {
         case 1:
           if (parameter.indexOf(',') != -1) {
             float newFitting[2] = {parameter.substring(0, parameter.indexOf(',')).toFloat(), parameter.substring(parameter.indexOf(',') + 1, parameter.length()).toFloat()};
-            EEPROM.begin(9);
-            EEPROM.write(5, round(newFitting[0] * 100) / 100);
-            EEPROM.write(6, round(newFitting[0] * 100) % 100);
-            EEPROM.write(7, round(newFitting[1] * 100) / 100);
-            EEPROM.write(8, round(newFitting[1] * 100) % 100);
-            fitting[0] = EEPROM.read(5) + EEPROM.read(6) * 0.01;
-            fitting[1] = EEPROM.read(7) + EEPROM.read(8) * 0.01;
+            EEPROM.begin(11);
+            EEPROM.write(5, (newFitting[0] < 0) ? 1 : 0);
+            EEPROM.write(6, round(abs(newFitting[0]) * 100) / 100);
+            EEPROM.write(7, round(abs(newFitting[0]) * 100) % 100);
+            EEPROM.write(8, (newFitting[1] < 0) ? 1 : 0);
+            EEPROM.write(9, round(abs(newFitting[1]) * 100) / 100);
+            EEPROM.write(10, round(abs(newFitting[1]) * 100) % 100);
+            fitting[0] = (EEPROM.read(5) == 1 ? -1 : 1) * (EEPROM.read(6) + EEPROM.read(7) * 0.01);
+            fitting[1] = (EEPROM.read(8) == 1 ? -1 : 1) * (EEPROM.read(9) + EEPROM.read(10) * 0.01);
             EEPROM.end();
             Serial.print("fitting <= {");
             Serial.print(fitting[0]);
@@ -295,20 +461,22 @@ void cmdCheck(char* packet) {
           ESP.restart();
           break;
         case 3:
-          EEPROM.begin(9);
+          EEPROM.begin(11);
           EEPROM.write(0, 0x39);
           EEPROM.write(1, round(BORDER_L * 10) / 10);
           EEPROM.write(2, round(BORDER_L * 10) % 10);
           EEPROM.write(3, round(BORDER_H * 10) / 10);
           EEPROM.write(4, round(BORDER_H * 10) % 10);
-          EEPROM.write(5, round(FITTING_K * 100) / 100);
-          EEPROM.write(6, round(FITTING_K * 100) % 100);
-          EEPROM.write(7, round(FITTING_B * 100) / 100);
-          EEPROM.write(8, round(FITTING_B * 100) % 100);
+          EEPROM.write(5, (FITTING_K < 0) ? 1 : 0);
+          EEPROM.write(6, round(abs(FITTING_K) * 100) / 100);
+          EEPROM.write(7, round(abs(FITTING_K) * 100) % 100);
+          EEPROM.write(8, (FITTING_B < 0) ? 1 : 0);
+          EEPROM.write(9, round(abs(FITTING_B) * 100) / 100);
+          EEPROM.write(10, round(abs(FITTING_B) * 100) % 100);
           border[0] = EEPROM.read(1) + EEPROM.read(2) * 0.1;
           border[1] = EEPROM.read(3) + EEPROM.read(4) * 0.1;
-          fitting[0] = EEPROM.read(5) + EEPROM.read(6) * 0.01;
-          fitting[1] = EEPROM.read(7) + EEPROM.read(8) * 0.01;
+          fitting[0] = (EEPROM.read(5) == 1 ? -1 : 1) * (EEPROM.read(6) + EEPROM.read(7) * 0.01);
+          fitting[1] = (EEPROM.read(8) == 1 ? -1 : 1) * (EEPROM.read(9) + EEPROM.read(10) * 0.01);
           EEPROM.end();
           Serial.print("border <= {");
           Serial.print(border[0]);
@@ -351,10 +519,15 @@ void cmdCheck(char* packet) {
 
 void setup(void) {
   pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(pinPage, INPUT_PULLUP);
+  pinMode(pinDown, INPUT_PULLUP);
+  pinMode(pinUp, INPUT_PULLUP);
   Serial.begin(115200);
   display.setPrintDelay(200);
+  display.setBacklight(0);
   display.begin();
   display.print("boot");
+  fade(2);
   bannerPrint();
   readConf();
   isOnline = connectWifi();
