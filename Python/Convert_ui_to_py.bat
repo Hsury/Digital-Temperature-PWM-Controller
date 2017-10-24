@@ -1,1 +1,1 @@
-pyuic5 qtWindow.ui -o qtWindow.py
+pyuic5 qtMainWindow.ui -o qtMainWindow.py & pyuic5 qtCtrlWindow.ui -o qtCtrlWindow.py

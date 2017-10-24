@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>566</width>
-    <height>200</height>
+    <width>534</width>
+    <height>181</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -15,6 +15,11 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="font">
+   <font>
+    <family>等线</family>
+   </font>
   </property>
   <property name="windowTitle">
    <string>数字温度PWM控制仪 - 2017盟升杯</string>
@@ -25,74 +30,104 @@
      <rect>
       <x>2</x>
       <y>2</y>
-      <width>72</width>
-      <height>15</height>
+      <width>41</width>
+      <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
-     <string>温度:</string>
+     <string>温度</string>
     </property>
    </widget>
    <widget class="QLabel" name="pwm">
     <property name="geometry">
      <rect>
-      <x>192</x>
+      <x>152</x>
       <y>2</y>
-      <width>72</width>
-      <height>15</height>
+      <width>51</width>
+      <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
-     <string>占空比:</string>
+     <string>占空比</string>
     </property>
    </widget>
    <widget class="QLabel" name="borderL">
     <property name="geometry">
      <rect>
-      <x>322</x>
+      <x>302</x>
       <y>2</y>
-      <width>72</width>
-      <height>15</height>
+      <width>41</width>
+      <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
-     <string>下限:</string>
+     <string>下限</string>
     </property>
    </widget>
    <widget class="QLabel" name="borderH">
     <property name="geometry">
      <rect>
-      <x>452</x>
+      <x>422</x>
       <y>2</y>
-      <width>72</width>
-      <height>15</height>
+      <width>41</width>
+      <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
-     <string>上限:</string>
+     <string>上限</string>
     </property>
    </widget>
    <widget class="QLabel" name="ip">
     <property name="geometry">
      <rect>
       <x>2</x>
-      <y>154</y>
-      <width>72</width>
-      <height>15</height>
+      <y>135</y>
+      <width>21</width>
+      <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
-     <string>IP: </string>
+     <string>IP:</string>
     </property>
    </widget>
    <widget class="QLabel" name="ipDot1">
     <property name="geometry">
      <rect>
-      <x>65</x>
-      <y>154</y>
+      <x>53</x>
+      <y>135</y>
       <width>16</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>.</string>
@@ -101,11 +136,16 @@
    <widget class="QLabel" name="ipDot2">
     <property name="geometry">
      <rect>
-      <x>105</x>
-      <y>154</y>
+      <x>93</x>
+      <y>135</y>
       <width>16</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>.</string>
@@ -114,40 +154,55 @@
    <widget class="QLabel" name="ipDot3">
     <property name="geometry">
      <rect>
-      <x>145</x>
-      <y>154</y>
+      <x>133</x>
+      <y>135</y>
       <width>16</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>.</string>
     </property>
    </widget>
-   <widget class="QLabel" name="mac">
-    <property name="geometry">
-     <rect>
-      <x>252</x>
-      <y>154</y>
-      <width>181</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>MAC: 未知</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="version">
     <property name="geometry">
      <rect>
-      <x>452</x>
-      <y>154</y>
-      <width>121</width>
+      <x>240</x>
+      <y>135</y>
+      <width>100</width>
       <height>16</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
     <property name="text">
      <string>版本: 未知</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="mac">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>135</y>
+      <width>180</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
+    <property name="text">
+     <string>MAC: 未知</string>
     </property>
    </widget>
    <widget class="QLCDNumber" name="tempLCD">
@@ -155,9 +210,14 @@
      <rect>
       <x>2</x>
       <y>20</y>
-      <width>171</width>
-      <height>71</height>
+      <width>140</width>
+      <height>60</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="smallDecimalPoint">
      <bool>true</bool>
@@ -172,14 +232,22 @@
    <widget class="QLCDNumber" name="pwmLCD">
     <property name="geometry">
      <rect>
-      <x>192</x>
+      <x>152</x>
       <y>20</y>
-      <width>111</width>
-      <height>71</height>
+      <width>140</width>
+      <height>60</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
+    <property name="smallDecimalPoint">
+     <bool>true</bool>
+    </property>
     <property name="digitCount">
-     <number>3</number>
+     <number>4</number>
     </property>
     <property name="value" stdset="0">
      <double>0.000000000000000</double>
@@ -188,11 +256,19 @@
    <widget class="QLCDNumber" name="borderLLCD">
     <property name="geometry">
      <rect>
-      <x>322</x>
+      <x>302</x>
       <y>20</y>
-      <width>111</width>
-      <height>71</height>
+      <width>110</width>
+      <height>60</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
+    <property name="smallDecimalPoint">
+     <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>3</number>
@@ -204,11 +280,19 @@
    <widget class="QLCDNumber" name="borderHLCD">
     <property name="geometry">
      <rect>
-      <x>452</x>
+      <x>422</x>
       <y>20</y>
-      <width>111</width>
-      <height>71</height>
+      <width>110</width>
+      <height>60</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
+    </property>
+    <property name="smallDecimalPoint">
+     <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>3</number>
@@ -220,11 +304,16 @@
    <widget class="QLineEdit" name="ipSeg1">
     <property name="geometry">
      <rect>
-      <x>32</x>
-      <y>152</y>
+      <x>20</x>
+      <y>133</y>
       <width>31</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>192</string>
@@ -233,11 +322,16 @@
    <widget class="QLineEdit" name="ipSeg2">
     <property name="geometry">
      <rect>
-      <x>72</x>
-      <y>152</y>
+      <x>60</x>
+      <y>133</y>
       <width>31</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>168</string>
@@ -246,11 +340,16 @@
    <widget class="QLineEdit" name="ipSeg3">
     <property name="geometry">
      <rect>
-      <x>112</x>
-      <y>152</y>
+      <x>100</x>
+      <y>133</y>
       <width>31</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>1</string>
@@ -259,11 +358,16 @@
    <widget class="QLineEdit" name="ipSeg4">
     <property name="geometry">
      <rect>
-      <x>152</x>
-      <y>152</y>
+      <x>140</x>
+      <y>133</y>
       <width>31</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>233</string>
@@ -272,11 +376,16 @@
    <widget class="QPushButton" name="connectButton">
     <property name="geometry">
      <rect>
-      <x>192</x>
-      <y>151</y>
-      <width>51</width>
+      <x>175</x>
+      <y>132</y>
+      <width>50</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+     </font>
     </property>
     <property name="text">
      <string>连接</string>
@@ -286,10 +395,16 @@
     <property name="geometry">
      <rect>
       <x>2</x>
-      <y>96</y>
-      <width>561</width>
-      <height>23</height>
+      <y>84</y>
+      <width>530</width>
+      <height>20</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">QProgressBar::chunk {background-color: #06B025;}</string>
@@ -308,10 +423,16 @@
     <property name="geometry">
      <rect>
       <x>2</x>
-      <y>124</y>
-      <width>561</width>
-      <height>23</height>
+      <y>108</y>
+      <width>530</width>
+      <height>20</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>等线</family>
+      <pointsize>8</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">QProgressBar::chunk {background-color: #06B025;}</string>
