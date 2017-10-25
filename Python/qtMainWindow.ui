@@ -34,11 +34,6 @@
       <height>16</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>温度</string>
     </property>
@@ -51,11 +46,6 @@
       <width>51</width>
       <height>16</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>占空比</string>
@@ -70,11 +60,6 @@
       <height>16</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>下限</string>
     </property>
@@ -87,11 +72,6 @@
       <width>41</width>
       <height>16</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>上限</string>
@@ -106,11 +86,6 @@
       <height>16</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>IP:</string>
     </property>
@@ -123,11 +98,6 @@
       <width>16</width>
       <height>16</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>.</string>
@@ -142,11 +112,6 @@
       <height>16</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>.</string>
     </property>
@@ -159,11 +124,6 @@
       <width>16</width>
       <height>16</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>.</string>
@@ -178,11 +138,6 @@
       <height>16</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>版本: 未知</string>
     </property>
@@ -195,11 +150,6 @@
       <width>180</width>
       <height>16</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>MAC: 未知</string>
@@ -214,19 +164,11 @@
       <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="smallDecimalPoint">
      <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>4</number>
-    </property>
-    <property name="value" stdset="0">
-     <double>0.000000000000000</double>
     </property>
    </widget>
    <widget class="QLCDNumber" name="pwmLCD">
@@ -238,19 +180,11 @@
       <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="smallDecimalPoint">
      <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>4</number>
-    </property>
-    <property name="value" stdset="0">
-     <double>0.000000000000000</double>
     </property>
    </widget>
    <widget class="QLCDNumber" name="borderLLCD">
@@ -262,19 +196,11 @@
       <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="smallDecimalPoint">
      <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>3</number>
-    </property>
-    <property name="value" stdset="0">
-     <double>0.000000000000000</double>
     </property>
    </widget>
    <widget class="QLCDNumber" name="borderHLCD">
@@ -286,19 +212,11 @@
       <height>60</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="smallDecimalPoint">
      <bool>true</bool>
     </property>
     <property name="digitCount">
      <number>3</number>
-    </property>
-    <property name="value" stdset="0">
-     <double>0.000000000000000</double>
     </property>
    </widget>
    <widget class="QLineEdit" name="ipSeg1">
@@ -309,11 +227,6 @@
       <width>31</width>
       <height>21</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>192</string>
@@ -328,11 +241,6 @@
       <height>21</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>168</string>
     </property>
@@ -345,11 +253,6 @@
       <width>31</width>
       <height>21</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>1</string>
@@ -364,11 +267,6 @@
       <height>21</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
-    </property>
     <property name="text">
      <string>233</string>
     </property>
@@ -381,11 +279,6 @@
       <width>50</width>
       <height>23</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>等线</family>
-     </font>
     </property>
     <property name="text">
      <string>连接</string>
