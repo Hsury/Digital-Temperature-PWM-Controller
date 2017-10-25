@@ -30,12 +30,12 @@ const byte pinDIO = 5;
 const byte pinLED = 2;
 const byte pinPage = 14;
 const byte pinUp = 13;
-const char* password = "duoguanriben8";
-const char* ssid = "Robocon";
+const char* password = "HSURY.COM";
+const char* ssid = "MSCup_2017";
 const char* update_username = "hsury";
 const char* update_password = "miku";
 const char* update_path = "/ota";
-const char* ver = "171025";
+const char* ver = "171026";
 const String cmdList[5] = {"border", "fitting", "restart", "restore", "print"};
 
 union float2byte {
@@ -371,8 +371,8 @@ void otaSetup(void) {
 }
 
 void readConf(void) {
+  EEPROM.begin(17);
   if (EEPROM.read(0) == 0x39) {
-    EEPROM.begin(17);
     float2byte tmpFloat;
     for (int i = 0; i < 4; i++) {
       tmpFloat.out[i] = EEPROM.read(i + 1);
@@ -396,6 +396,7 @@ void readConf(void) {
     borderHStr = String(border[1]);
     borderHStr = borderHStr.substring(0, borderHStr.length() - 1);
   } else {
+    EEPROM.end();
     border[0] = BORDER_L;
     border[1] = BORDER_H;
     fitting[0] = FITTING_K;
