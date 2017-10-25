@@ -145,9 +145,9 @@
    <widget class="QLabel" name="mac">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>340</x>
       <y>135</y>
-      <width>180</width>
+      <width>190</width>
       <height>16</height>
      </rect>
     </property>
@@ -268,7 +268,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>233</string>
+     <string>39</string>
     </property>
    </widget>
    <widget class="QPushButton" name="connectButton">

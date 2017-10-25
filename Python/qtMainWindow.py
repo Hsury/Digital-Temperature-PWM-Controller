@@ -50,7 +50,7 @@ class Ui_MainWindow(object):
         self.version.setGeometry(QtCore.QRect(240, 135, 100, 16))
         self.version.setObjectName("version")
         self.mac = QtWidgets.QLabel(self.centralwidget)
-        self.mac.setGeometry(QtCore.QRect(350, 135, 180, 16))
+        self.mac.setGeometry(QtCore.QRect(340, 135, 190, 16))
         self.mac.setObjectName("mac")
         self.tempLCD = QtWidgets.QLCDNumber(self.centralwidget)
         self.tempLCD.setGeometry(QtCore.QRect(2, 20, 140, 60))
@@ -133,6 +133,6 @@ class Ui_MainWindow(object):
         self.ipSeg1.setText(_translate("MainWindow", "192"))
         self.ipSeg2.setText(_translate("MainWindow", "168"))
         self.ipSeg3.setText(_translate("MainWindow", "1"))
-        self.ipSeg4.setText(_translate("MainWindow", "233"))
+        self.ipSeg4.setText(_translate("MainWindow", "39"))
         self.connectButton.setText(_translate("MainWindow", "连接"))
 
